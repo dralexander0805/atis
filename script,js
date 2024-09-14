@@ -1,0 +1,36 @@
+document.addEventListener('DOMContentLoaded', () => {
+    const atisDataElement = document.getElementById('atis-data');
+
+    async function fetchATIS() {
+        try {
+            const response = await fetch('https://data.vatsim.net/v3/vatsim-data.json');
+            const data = await response.json();
+
+            // Log the entire data to inspect its structure
+            console.log('Fetched data:', data);
+
+            const atisEntries = data.atis || [];
+
+            // Filter ATIS entries for KSDF_ATIS
+            const ksdfATIS = atisEntries.find(entry => entry.callsign === 'KSDF_ATIS');
+
+            // Log the filtered KSDF ATIS data
+            console.log('KSDF ATIS:', ksdfATIS);
+
+            if (ksdfATIS) {
+                atisDataElement.textContent = `${ksdfATIS.atis_code}`;
+            } else {
+                atisDataElement.textContent = 'No ATIS data available for KSDF.';
+            }
+        } catch (error) {
+            console.error('Error fetching ATIS data:', error);
+            atisDataElement.textContent = 'Error fetching ATIS data.';
+        }
+    }
+
+    // Fetch ATIS data initially
+    fetchATIS();
+
+    // Set up interval to fetch data every 10 seconds
+    setInterval(fetchATIS, 10000);
+});
